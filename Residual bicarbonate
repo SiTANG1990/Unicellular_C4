@@ -1,0 +1,62 @@
+library(readxl)
+library(ggpubr)
+library(dplyr)
+library(rstatix)
+library(multcompView)
+ST <- read_excel("C:/Users/Si/Desktop/ST15.xlsx", sheet = "Sheet14")
+attach(ST)
+ST
+ST$number = factor(ST$number)
+ST$type <- factor(ST$type, 
+                    levels = c("Light","Dark"))
+ST$number <- factor(ST$number, 
+                    levels = c("Mobile","Nonmobile","Control"))
+anova <- aov(size ~ number, data = ST)
+tukey <- TukeyHSD(anova)
+tukey
+cld <- multcompLetters4(anova, tukey)
+Tk <- group_by(ST, number) %>%
+  summarise(mean=mean(size), quant = quantile(size, probs = 1)) %>%
+  arrange(desc(mean))
+cld <- as.data.frame.list(cld$number)
+Tk$cld <- cld$Letters
+Tk
+plot <- ggbarplot(ST, x = "number", y = "size",add = "mean_se",
+                  fill = "number",
+                  palette = c( "#0a9f87", "#4ebad6", "#ed9d81",'#4292c6','#2171b5','#084594',
+                               '#ffffcc','#e5d8bd','#fddaec','#f2f2f2')
+                  ,size = 2
+                  ,width = 0.8
+                  ,facet.by = "type"
+                  ,add.params = list(size = 1.5)
+                  
+)
+plot
+
+plot+ 
+  xlab("")+
+  ylab(~ paste("Residual bicarbonate ",(mM)))+
+  scale_y_continuous(
+    limits = c(0,0.2))+
+theme(legend.title=element_blank(),
+      legend.position = c(0.9, 0.9))+
+  theme(legend.position = c(0.85, 0.92),
+        legend.text=element_text(size=45))+
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA, size=2))+
+  theme(axis.text=element_text(size=43, colour = "black"),
+        axis.title=element_text(size=48,colour = "black"))+
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.6))+
+  theme(strip.text.x = element_text(size = 50),strip.text.y = element_text(size = 40))+
+  theme(legend.key.size = unit(3,"line"))+
+  theme(axis.ticks = element_line(size = 2,colour = "black"))+
+  theme(axis.ticks.length=unit(0.4, "cm"))+ 
+  theme(legend.position = "none")+
+  theme(panel.spacing = unit(.05, "lines"),
+        panel.border = element_rect(color = "black", fill = NA, size = 2), 
+        strip.background = element_rect(color = "black", size = 1.5))+
+ scale_x_discrete("", labels = c(expression(Vetetative~cell),expression(Cyst), 
+                                              ))
+ggsave('C:/Users/Si/Desktop/ggplot06.jpg', width =50, height =30, units = "cm",dpi = 300)
+
+
