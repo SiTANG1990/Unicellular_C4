@@ -1,0 +1,45 @@
+#C4 genes
+
+
+library(readxl)
+library(ggpubr)
+library(dplyr)
+library(rstatix)
+library(multcompView)
+library(ggplot2)
+ST <- read_excel("C:/Users/Si/Desktop/ST12.xlsx", sheet = "Sheet5")
+attach(ST)
+ST
+ST$number <- factor(ST$number, 
+                    levels = c("PPDK","PEPC","aspAT","PEPCK","ME","Rubisco"))
+ST$type <- factor(ST$type, 
+                    levels = c("Mobile","Nonmobile"))
+plot = ggboxplot(ST, x = "type", y="size", size = 2,fill = "#4ebad6")+
+  # geom_boxplot()+
+  facet_wrap(
+    #number~treat
+    .~number
+    ,ncol = 3
+    ,scales = "free"
+  )
+plot = plot+
+  ylab("TPM")+
+  theme(legend.title=element_blank())+
+  theme(legend.position = c(0.08,0.96),
+        legend.text=element_text(size=25))+
+  theme(
+    panel.border = element_rect(colour = "black", fill=NA, size=2))+
+  theme(panel.spacing = unit(3, "lines"))+
+  theme(
+    axis.text=element_text(size=35, colour = "black"),
+    axis.title=element_text(size=50,colour = "black"),
+    axis.title.x=element_blank())+
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5))+
+  theme(strip.text.x = element_text(size = 45),strip.text.y = element_text(size = 45, colour = "white"))+
+  theme(strip.text.x =  element_text(face = "italic"))+
+  theme(strip.background.x =element_rect(fill="#e0e0e0"))+
+  theme(strip.background.y =element_rect(fill="#4ebad6"))+
+  theme(axis.ticks = element_line(size = 2,colour = "black"))+
+  theme(axis.ticks.length=unit(0.4, "cm")) 
+plot
+ggsave('C:/Users/Si/Desktop/ggplot06.jpg', width =60, height =40, units = "cm",dpi = 300)
